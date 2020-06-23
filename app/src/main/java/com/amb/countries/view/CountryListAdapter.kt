@@ -3,10 +3,13 @@ package com.amb.countries.view
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.amb.countries.R
 import com.amb.countries.model.Country
+import com.amb.countries.util.getProgressDrawable
+import com.amb.countries.util.loadImage
 import kotlinx.android.synthetic.main.item_country.view.*
 
 class CountryListAdapter(
@@ -39,9 +42,15 @@ class CountryListAdapter(
     class CountryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         private val tvCountryName: TextView = view.tvName
+        private val tvCountryCapital: TextView = view.tvCapital
+        private val ivCountryFlag: ImageView = view.ivFlag
+
+        private val progressDrawable = getProgressDrawable(context = view.context)
 
         fun bind(country: Country) {
             tvCountryName.text = country.name
+            tvCountryCapital.text = country.capital
+            ivCountryFlag.loadImage(country.flag, progressDrawable)
         }
     }
 }

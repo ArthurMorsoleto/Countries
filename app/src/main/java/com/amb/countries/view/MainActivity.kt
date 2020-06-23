@@ -9,12 +9,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.amb.countries.R
 import com.amb.countries.viewmodel.ListViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val rcCountries by lazy { findViewById<RecyclerView>(R.id.rcCountries) }
+    private val swipeLayout by lazy { findViewById<SwipeRefreshLayout>(R.id.swipeLayout) }
     private val tvListError by lazy { findViewById<TextView>(R.id.tvListError) }
     private val loadingView by lazy { findViewById<ProgressBar>(R.id.loadingView) }
 
@@ -34,6 +36,11 @@ class MainActivity : AppCompatActivity() {
             adapter = countriesAdapter
         }
 
+        swipeLayout.setOnRefreshListener {
+            swipeLayout.isRefreshing = false
+            viewModel.refresh()
+        }
+
         observeViewModel()
     }
 
@@ -41,7 +48,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.countries.observe(this, Observer { countries ->
             countries?.let {
                 rcCountries.visibility = View.VISIBLE
-                countriesAdapter.updateCountries(it) }
+                countriesAdapter.updateCountries(it)
+            }
         })
 
         viewModel.countryLoadError.observe(this, Observer { isError ->
