@@ -2,9 +2,17 @@ package com.amb.countries.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.amb.countries.model.CountriesService
 import com.amb.countries.model.Country
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableSingleObserver
+import io.reactivex.schedulers.Schedulers
 
 class ListViewModel : ViewModel() {
+
+    private val countriesService = CountriesService()
+    private val disposable = CompositeDisposable()
 
     val countries = MutableLiveData<List<Country>>()
     val countryLoadError = MutableLiveData<Boolean>()
@@ -15,16 +23,29 @@ class ListViewModel : ViewModel() {
     }
 
     private fun fetchCountries() {
-        val mockData = listOf(
-            Country("A"),
-            Country("B"),
-            Country("C"),
-            Country("D"),
-            Country("E")
+        loading.value = true
+
+        disposable.add(
+            countriesService.getCountries()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<List<Country>>() {
+                    override fun onSuccess(value: List<Country>?) {
+                        countries.value = value
+                        loading.value = false
+                        countryLoadError.value = false
+                    }
+                    override fun onError(e: Throwable?) {
+                        loading.value = false
+                        countryLoadError.value = true
+                    }
+                })
         )
-        countryLoadError.value = false
-        loading.value = false
-        countries.value = mockData
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
     }
 
 }

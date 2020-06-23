@@ -41,7 +41,7 @@ class CountryListAdapter(
         private val tvCountryName: TextView = view.tvName
 
         fun bind(country: Country) {
-            tvCountryName.text = country.countryName
+            tvCountryName.text = country.name
         }
     }
 }
